@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Mase</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <style type="text/css">
+    td {
+        text-align: center;
+        width: 100px;
+        height: 100px;
+        border: solid;
+    }
+    </style>
+</head>
+
+<body>
+    <button id="reloadBtn">重新</button>
+    <button id="findBtn">找路</button>
+    <table>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+    <script type="text/javascript">
+    $(function() {
+        var black;
+        var clickNum;
+
+        /*reload table*/
+        var initTable = function() {
+            //init array
+            //init clickNum
+            //init roadArr
+            //init table data,text and id
+            //set findBtn listener 
+            black = [];
+            clickNum = 0;
+            roadArr = [];
+            $('td').css({
+                "backgroundColor": "white"
+            }).text('').removeAttr('name');
+            $('#findBtn').on('click', findRoad);
+
+            //add listener to every td
+            setStartAndTarget();
+
+            //generate black table data
+            for (var i = 1; i <= 10; i++) {
+                do {
+                    rnd = Math.floor(Math.random() * 25);
+                } while (black[rnd]);
+                black[rnd] = rnd;
+                $('td').eq(rnd).css({
+                    "backgroundColor": "black"
+                }).off('click');
+            }
+            
+        }
+
+        /*set start td and target td*/
+        var setStartAndTarget = function() {
+            $('td').on('click', function() {
+                //if clickNum=0 then write Start
+                //else write Target
+                if (clickNum == 0) {
+                    this.innerHTML = 'Start';
+                    //remove this listener
+                    $(this).off('click').attr({
+                        name: 'start'
+                    });
+                    clickNum++;
+                } else {
+                    this.innerHTML = 'Target';
+                    $(this).attr({
+                        name: 'target'
+                    });
+                    $('td').off('click');
+                }
+            })
+        }
+
+
+        /*excute*/
+        var findRoad = function() {
+            //init roadArr
+            roadArr = [];
+
+            //find the id of start and target elements
+            var start = parseInt($("[name='start']").eq(0).attr('id'));
+            var target = $("[name='target']").eq(0).attr('id');
+            var hasResult = findRoadExecute(start, target);
+            console.log(roadArr.toString());
+            if (hasResult) {
+                roadArr.forEach(function(item, index) {
+                    $('#' + item).css({
+                        "backgroundColor": "red"
+                    })
+                });
+            } else {
+                alert('Can not find road');
+            }
+            $('#findBtn').off('click');
+        }
+
+        /*find road*/
+        var findRoadExecute = function(point, target) {
+        	black[point] = point;
+            roadArr.push(point);
+            if (goLeft(point, target)) {
+                return true;
+            }
+            if (goDown(point, target)) {
+                return true;
+            }
+            if (goRight(point, target)) {
+                return true;
+            }
+            if (goUp(point, target)) {
+                return true;
+            }
+            black[point]=null;
+            roadArr.pop();
+            return false;
+        }
+        /*go left*/
+        var goLeft = function(point, target) {
+            point = point - 1;
+            if (isNaN(black[point])) {
+                if (point == -1 || point == 4 || point == 9 || point == 14 || point == 19) {
+                    return;
+                } else {
+                    if (point != target) {
+                        return findRoadExecute(point, target);
+                    } else {
+                        roadArr.push(point);
+                        return true;
+                    }
+                }
+            } else {
+                return;
+            }
+
+        }
+        /*go down*/
+        var goDown = function(point, target) {
+            point = point + 5;
+            if (isNaN(black[point])) {
+                if (point == 25 || point == 26 || point == 27 || point == 28 || point == 29) {
+                    return;
+                } else {
+                    if (point != target) {
+                        black[point] = point;
+                        return findRoadExecute(point, target);
+                    } else {
+                        roadArr.push(point);
+                        return true;
+                    }
+                }
+            } else {
+                return;
+            }
+        }
+
+
+        /*go right*/
+        var goRight = function(point, target) {
+            point = point + 1;
+            if (isNaN(black[point])) {
+                if (point == 5 || point == 10 || point == 15 || point == 20 || point == 25) {
+                    return;
+                } else {
+                    if (point != target) {
+                        black[point] = point;
+                        return findRoadExecute(point, target);
+                    } else {
+                        roadArr.push(point);
+                        return true;
+                    }
+                }
+            } else {
+                return;
+            }
+
+        }
+
+
+        /*go up*/
+        var goUp = function(point, target) {
+            point = point - 5;
+            if (isNaN(black[point])) {
+                if (point == -5 || point == -4 || point == -3 || point == -2 || point == -1) {
+                    return;
+                } else {
+                    if (point != target) {
+                        black[point] = point;
+                        return findRoadExecute(point, target);
+                    } else {
+                        roadArr.push(point);
+                        return true;
+                    }
+                }
+            } else {
+                return;
+            }
+
+        }
+
+
+        //give id=index
+        $('td').each(function(index, el) {
+            $(el).attr({
+                id: index
+            })
+        });
+        $('#reloadBtn').on('click', initTable);
+        $('#findBtn').on('click', findRoad);
+        initTable();
+    })
+    </script>
+</body>
+
+</html>

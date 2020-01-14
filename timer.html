@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+    <!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script> -->
+    <title>Timer</title>
+
+</head>
+<body>
+<h2>Timer</h2>
+<span>Minutes:</span><input type="number" id="timeInputM" value="30" ><br>
+<span>Second:  </span><input type="number" id="timeInputS" value="0" ><br>
+<button id="btn1" onclick="start()">Start</button>
+<button id="btn2" onclick="reload()">Reload</button>
+<br>
+<textarea name="ta2" id="ta2" cols="50%" rows="7%"></textarea>
+<br>
+<span id="timeBannerM"></span> 分
+<span id="timeBannerS"></span> 秒
+<br>
+The number of words is <span id="wordsSpan"></span>
+<br>
+<textarea name="ta1" id="ta1" cols="80%" rows="20%" oninput="taOnChange();"></textarea>
+</body>
+<script>
+	  var btn1, btn2, timeBannerM, timeBannerS, isStart = false;
+	  var timeoutId;
+	  var min, sec;
+	  var ta1, wordsSpan;
+
+	window.addEventListener("load", function(){
+      btn1 = document.getElementById("btn1");
+      btn2 = document.getElementById("btn2");
+      timeBannerM = document.getElementById("timeBannerM");
+      timeBannerS = document.getElementById("timeBannerS");
+      timeInputM = document.getElementById("timeInputM");
+      timeInputS = document.getElementById("timeInputS");
+      ta1 = document.getElementById("ta1");
+      wordsSpan = document.getElementById("wordsSpan");
+
+
+	})
+
+	function reload(){
+		if(timeoutId){
+			clearInterval(timeoutId);
+		    timeInputM.value = 30;
+		    timeInputS.value = 0;
+		    timeInputM.disabled = false;
+		    timeInputS.disabled = false;
+		    timeBannerM.innerHTML = "";
+		    timeBannerS.innerHTML = "";
+		    btn1.onclick = start;
+		    btn1.innerHTML = "Start";
+		}
+		
+
+	}
+
+	function start(){
+// change the word "start" to "stop"
+		btn1.innerHTML = "Stop";
+		btn1.onclick = function(){
+			clearInterval(timeoutId);
+			isStart = true;
+			btn1.innerHTML = "Start";
+			btn1.onclick = start;
+		}
+
+		timeInputM.disabled = true;
+		timeInputS.disabled = true;
+
+
+// run timer
+        if(!isStart){
+        	timeBannerM.innerHTML = timeInputM.value;
+        	timeBannerS.innerHTML = timeInputS.value;
+        }
+		timeoutId = setInterval(beignToRun,1000);
+	}
+
+	function beignToRun(){
+		nextSecond = timeBannerS.innerHTML-1;
+		if(nextSecond > 0){
+			timeBannerS.innerHTML = nextSecond;
+		}else{
+			if(timeBannerM.innerHTML > 0){
+				if(nextSecond == 0){
+					// min > 0 and sec==1
+					timeBannerS.innerHTML = nextSecond;
+				}else{
+					// min > 0 and sec==0
+					timeBannerM.innerHTML = timeBannerM.innerHTML-1;
+					timeBannerS.innerHTML = 60;
+				}	 
+			}
+			else{
+				// min = 0 and sec==1
+				timeBannerS.innerHTML = 0;
+			    clearInterval(timeoutId);
+			    alert("Time Out")
+
+			    btn1.innerHTML = "Start";
+			    btn1.onclick = start;
+
+			    timeInputM.disabled = false;
+			    timeInputS.disabled = false;
+
+
+			}
+		}
+	}
+
+	function taOnChange(){
+		var words = ta1.value;
+		wordsSpan.innerHTML = words.split(" ").length;
+	}
+</script>
+</html>
