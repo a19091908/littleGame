@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tic Tac Toe</title>
+    <style type="text/css">
+    td {
+        text-align: center;
+        width: 100px;
+        height: 100px;
+        border: solid;
+        font-size: 4em;
+    }
+    </style>
+</head>
+
+<body>
+    <h2 id='h2'>Tic Tac Toe</h2>
+    <h3 id='h3'>Player 1</h3>
+    <button onclick="resetGame()">RESET</button>
+    <button onclick="playWithAI()">Play with AI</button>
+    <table>
+        <tr id="tr1">
+            <td onclick="onClickTdHandler(this)"></td>
+            <td onclick="onClickTdHandler(this)"></td>
+            <td onclick="onClickTdHandler(this)"></td>
+        </tr>
+        <tr id="tr2">
+            <td onclick="onClickTdHandler(this)"></td>
+            <td onclick="onClickTdHandler(this)"></td>
+            <td onclick="onClickTdHandler(this)"></td>
+        </tr>
+        <tr id="tr3">
+            <td onclick="onClickTdHandler(this)"></td>
+            <td onclick="onClickTdHandler(this)"></td>
+            <td onclick="onClickTdHandler(this)"></td>
+        </tr>
+    </table>
+    <script type="text/javascript">
+        let isGameOver = false;
+        let isAiMode = false;
+        const termOStr = 'O';
+        const termXStr = 'X';
+        const h2Msg1 = 'Tic Tac Toe';
+        const h2Msg2 = 'Tic Tac Toe VS AI';
+        const h3Msg1 = 'Player 1';
+        const h3Msg2 = 'Player 2';
+        const h3Msg3 = 'Game Over! ';
+        let isOTerm = true;
+        const h2Ele = document.getElementById('h2');
+        const h3Ele = document.getElementById('h3');
+        const tr1 = document.getElementById('tr1');
+        const tr2 = document.getElementById('tr2');
+        const tr3 = document.getElementById('tr3');
+        const tdArr = [tr1.children, tr2.children, tr3.children];
+
+        function onClickTdHandler(event) {
+            if (isGameOver) return false;
+            if (event.textContent != '') return false;
+
+            event.textContent = isOTerm ? termOStr : termXStr;
+            if (isWin(isOTerm)) {
+                const msg = h3Msg3 + event.textContent + ' Win!';
+                window.alert(msg);
+                isGameOver = true;
+                h3Ele.textContent = msg;
+                return true;
+            }
+
+            if (isNoFurtherAction()) {
+                const msg = h3Msg3 + ' Tie!';
+                window.alert(msg);
+                isGameOver = true;
+                h3Ele.textContent = msg;
+                return true;
+            }
+
+            isOTerm = !isOTerm;
+            h3Ele.textContent = isOTerm ? h3Msg1 : h3Msg2;
+
+            // is AI Mode and is AI term
+            if (isAiMode && !isOTerm) {
+                advDecidsion();
+            }
+
+        }
+
+        function isWin(isOTerm) {
+            const termStr = isOTerm ? termOStr : termXStr;
+
+            // Check row
+            for (let i = 0; i < tdArr.length; i++) {
+                let isRowWin = true;
+                for (let j = 0; isRowWin == true && j < tdArr[0].length; j++) {
+                    isRowWin = isRowWin && tdArr[i][j].textContent === termStr;
+                }
+                if (isRowWin) {
+                    return true;
+                }
+            }
+
+
+            // Check col
+            for (let j = 0; j < tdArr[0].length; j++) {
+                let isColWin = true;
+                for (let i = 0; isColWin == true && i < tdArr.length; i++) {
+                    isColWin = isColWin && tdArr[i][j].textContent === termStr;
+                }
+                if (isColWin) {
+                    return true;
+                }
+            }
+
+
+            // Check diagonal
+            let isDiagonalWin = true;
+            for (let i = 0; i < tdArr.length; i++) {
+                isDiagonalWin = isDiagonalWin && tdArr[i][i].textContent === termStr;
+            }
+            if (isDiagonalWin) return true;
+
+
+            // Check anti-diagonal
+            let isAntiDiagonalWin = true;
+            for (let i = 0; i < tdArr.length; i++) {
+                isAntiDiagonalWin = isAntiDiagonalWin && tdArr[i][tdArr.length -1 - i].textContent === termStr;
+            }
+            if (isAntiDiagonalWin) return true;
+
+            return false;
+        }
+
+        function resetGame() {
+            for (let i = 0; i < tdArr.length; i++) {
+                for (let j = 0; j < tdArr[0].length; j++) {
+                    tdArr[i][j].textContent = '';
+                }
+            }
+            h3Ele.textContent = h3Msg1;
+            h2Ele.textContent = h2Msg1;
+            isGameOver = false;
+            isOTerm = true;
+            isAiMode = false;
+        }
+
+        function playWithAI() {
+            for (let i = 0; i < tdArr.length; i++) {
+                for (let j = 0; j < tdArr[0].length; j++) {
+                    tdArr[i][j].textContent = '';
+                }
+            }
+            h3Ele.textContent = h3Msg1;
+            h2Ele.textContent = h2Msg2;
+            isGameOver = false;
+            isOTerm = true;
+            isAiMode = true;
+        }
+
+        function isNoFurtherAction() {
+            const actions = getPossibleActions();
+            return actions.length === 0;
+        }
+
+
+        // Advers functions
+
+        function advDecidsion() {
+            // get possible actions
+            const actions = getPossibleActions();
+            let bestAction = "";
+            let bestScore  = 0;
+
+            for (let i = 0; i < actions.length; i++) {
+                const action = actions[i];
+
+                // evaluate this step
+                let score = getScore(action);
+
+                // keep the action with the highest score
+                if (bestScore < score) {
+                    bestScore = score;
+                    bestAction = action;
+                }
+            }
+
+            // perform the action with the highest score
+            bestAction.click();
+        }
+
+        function getPossibleActions() {
+            actions = [];
+            for (let i = 0; i < tdArr.length; i++) {
+                for (let j = 0; j < tdArr[0].length; j++) {
+                    if (tdArr[i][j].textContent === '') actions.push(tdArr[i][j]);
+                }
+            }
+            return actions;
+        }
+
+        function getScore(action) {
+            // If I can win
+            if (canAdvWin(action, termXStr)) {
+                return 100;
+            }
+
+            // If the other can win
+            if (canAdvWin(action, termOStr)) {
+                return 50;
+            }
+
+            // If center is empty
+
+
+            return 1;
+        }
+
+        function canAdvWin(action, termStr) {
+
+            // the position of the action
+            let position = getPosition(action);
+
+            // Check row
+            let isRowWin = true;
+            for (let j = 0; isRowWin == true && j < tdArr[0].length; j++) {
+                if (j === position[1]) continue;
+                isRowWin = isRowWin && tdArr[position[0]][j].textContent === termStr;
+            }
+            if (isRowWin) {
+                return true;
+            }
+
+
+            // Check col
+            let isColWin = true;
+            for (let i = 0; isColWin == true && i < tdArr.length; i++) {
+                if (i === position[0]) continue;
+                isColWin = isColWin && tdArr[i][position[1]].textContent === termStr;
+            }
+            if (isColWin) {
+                return true;
+            }
+
+
+            // Check diagonal
+            if (position[0] === position[1]) {
+                let isDiagonalWin = true;
+                for (let i = 0; i < tdArr.length; i++) {
+                    if (i === position[0]) continue;
+                    isDiagonalWin = isDiagonalWin && tdArr[i][i].textContent === termStr;
+                }
+                if (isDiagonalWin) return true;
+            }
+
+            // Check anti-diagonal
+            if (position[0] == tdArr.length - 1 - position[1]) {
+                let isAntiDiagonalWin = true;
+                for (let i = 0; i < tdArr.length; i++) {
+                    if (i === position[0]) continue;
+                    isAntiDiagonalWin = isAntiDiagonalWin && tdArr[i][tdArr.length -1 - i].textContent === termStr;
+                }
+                if (isAntiDiagonalWin) return true;
+            }
+
+            return false;
+        }
+
+        function getPosition(action) {
+            for (let i = 0; i < tdArr.length; i++) {
+                for (let j = 0; j < tdArr[0].length; j++) {
+                    if (tdArr[i][j] === action) return [i, j];
+                }
+            }
+
+            return [-1,-1];
+        }
+
+
+    </script>
+</body>
+
+</html>
